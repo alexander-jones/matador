@@ -1,0 +1,14 @@
+<html>
+  <head>
+    {% if title %}
+    <title>{{ title }} - Matador Investment Leagues</title>
+    {% else %}
+    <title>Welcome to Matador Investment Leagues!</title>
+    {% endif %}
+  </head>
+  <body>
+    <div>Matador: <a href="/index">Home</a></div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>

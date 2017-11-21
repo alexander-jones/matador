@@ -50,5 +50,29 @@ class TestUserBasic(TestDB):
         salt_str = queried.salt.encode('utf-8')
         self.assertEqual(queried.password, bcrypt.hashpw(TestUserBasic.PASSWORD + salt_str, salt_str))
 
+
+class TestLeagueBasic(TestDB):
+
+    # utility functions
+    def insert_user(self, offset):
+        salt = bcrypt.gensalt()
+        new_user = User(name=str(offset), email = "{0}@{0}.com".format(offset), password = bcrypt.hashpw(str(offset) + salt, salt), salt = salt)
+        self.session.add(new_user)
+        self.session.commit()
+        return new_user
+
+    def test_league(self):
+        now = datetime.now();
+        owner = self.insert_user(0);
+        new_league = League(name = "best 80's songs", owner = owner.id, principle = 1000.0, term_start = now, term_end = now + timedelta(days=30), last_updated = now)
+        self.session.add(new_league)
+        self.session.commit()
+
+
+        owner_placement = Placement(user = owner.id, league = )
+        user2 = self.insert_user(1);
+        user3 = self.insert_user(1);
+        user4 = self.insert_user(1);
+
 if __name__ == "__main__":
     unittest.main()
