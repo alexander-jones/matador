@@ -1,0 +1,13 @@
+<!-- extend from base layout -->
+{% extends "base.html" %}
+{% block content %}
+{% from "_form_helpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.username_or_email) }}
+    {{ render_field(form.password) }}
+  </dl>
+  {{ render_field(form.remember_me) }}
+  <p><input type=submit value=Register>
+</form>
+{% endblock %}
