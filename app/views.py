@@ -16,10 +16,13 @@ def have_user(merge_if_found = False):
         current_app.user = db.session.merge(current_app.user)
     return ret
 
-
-def render_template_dark(template, **kwargs):
+def render_template_base(template, **kwargs):
     if have_user(merge_if_found = True):
         kwargs['user'] = current_app.user
+
+    return render_template(template, **kwargs)
+
+def render_template_dark(template, **kwargs):
 
     kwargs['color_nav_link'] = app.config['COLOR_PRIMARY']
     kwargs['color_nav_background'] = app.config['COLOR_BACKGROUND_DARKEST']
@@ -30,7 +33,7 @@ def render_template_dark(template, **kwargs):
     kwargs['color_nav_link_active'] = app.config['COLOR_BACKGROUND_DARK']
     kwargs['color_nav_link_background_active'] = app.config['COLOR_PRIMARY']
 
-    return render_template(template, **kwargs)
+    return render_template_base(template, **kwargs)
 
 #endregion
 
@@ -48,8 +51,13 @@ def login():
         if request.method == 'POST' and form.validate():
             try:
                 user_input = form.username_or_email.data
-                current_app.user = User.query.filter(or_(User.email == user_input, User.name == user_input)).first()
-                return redirect(url_for('index'))
+                user = User.query.filter(or_(User.email == user_input, User.name == user_input)).first()
+                salt, stored_password, given_password = user.salt.encode('utf-8'), user.password.encode('utf-8'), form.password.data.encode('utf-8')
+                if not bcrypt.hashpw(given_password + salt, salt) == stored_password:
+                    flash('Invalid email or password')
+                else:
+                    current_app.user = user
+                    return redirect(url_for('index'))
             except IntegrityError:
                 flash('No user found with the name or email {0}'.format(user_input))
         return render_template_dark('login.html', form=form)
