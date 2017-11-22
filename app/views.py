@@ -8,16 +8,38 @@ from sqlalchemy.exc import IntegrityError
 
 import bcrypt
 
-def have_user():
-    return hasattr(current_app, 'user') and current_app.user is not None
+#region utilities
+
+def have_user(merge_if_found = False):
+    ret = hasattr(current_app, 'user') and current_app.user is not None
+    if ret and merge_if_found:
+        current_app.user = db.session.merge(current_app.user)
+    return ret
+
+
+def render_template_dark(template, **kwargs):
+    if have_user(merge_if_found = True):
+        kwargs['user'] = current_app.user
+
+    kwargs['color_nav_link'] = app.config['COLOR_PRIMARY']
+    kwargs['color_nav_background'] = app.config['COLOR_BACKGROUND_DARKEST']
+
+    kwargs['color_nav_link_hover'] = app.config['COLOR_PRIMARY']
+    kwargs['color_nav_link_background_hover'] = app.config['COLOR_BACKGROUND_DARK']
+
+    kwargs['color_nav_link_active'] = app.config['COLOR_BACKGROUND_DARK']
+    kwargs['color_nav_link_background_active'] = app.config['COLOR_PRIMARY']
+
+    return render_template(template, **kwargs)
+
+#endregion
+
+#region views
 
 @app.route('/')
 @app.route('/index')
 def index():
-    user = {'name': 'Unknown User'} 
-    if have_user():
-        user = db.session.merge(current_app.user)
-    return render_template('index.html', title='Home', user=user)
+    return render_template_dark('index.html', title='Home')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -30,7 +52,7 @@ def login():
                 return redirect(url_for('index'))
             except IntegrityError:
                 flash('No user found with the name or email {0}'.format(user_input))
-        return render_template('login.html', form=form)
+        return render_template_dark('login.html', form=form)
     return redirect(url_for('index'))
 
 
@@ -48,5 +70,7 @@ def register():
                 return redirect(url_for('index'))
             except IntegrityError:
                 flash('A user is already registered with the email {0}'.format(form.email.data))
-        return render_template('register.html', form=form)
+        return render_template_dark('register.html', form=form)
     return redirect(url_for('index'))
+
+#endregion

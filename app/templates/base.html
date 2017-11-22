@@ -1,10 +1,38 @@
 <html>
   <head>
-    {% if title %}
-    <title>{{ title }} - Matador Investment Leagues</title>
-    {% else %}
-    <title>Welcome to Matador Investment Leagues!</title>
-    {% endif %}
+    <link rel="shortcut icon" type="image/x-icon" href="https://production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
+    <link rel="mask-icon" type="" href="https://production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" />
+
+    <style>
+      /* Add a black background color to the top navigation */
+      .topnav {
+          background-color: {{ color_nav_background }};
+          overflow: hidden;
+      }
+
+      /* Style the links inside the navigation bar */
+      .topnav a {
+          float: left;
+          color: {{ color_nav_link }};
+          text-align: center;
+          padding: 14px 16px;
+          text-decoration: none;
+          font-size: 17px;
+      }
+
+      /* Change the color of links on hover */
+      .topnav a:hover {
+          background-color: {{ color_nav_link_background_hover }};
+          color: {{ color_nav_link_hover }};
+      }
+
+      /* Add a color to the active/current link */
+      .topnav a.active {
+          background-color: {{ color_nav_link_background_active }};
+          color: {{ color_nav_link_active }};
+      }
+
+    </style>
   </head>
   {% with messages = get_flashed_messages() %}
     {% if messages %}
@@ -16,8 +44,15 @@
     {% endif %}
   {% endwith %}
   <body>
-    <div>Matador: <a href="/index">Home</a></div>
-    <hr>
+    <div class="topnav" id="myTopnav">
+        <a href="{{ url_for('index') }}" > Home </a>
+        {% if user %}
+          <a href="{{ url_for('login') }}"> Logout </a>
+        {% else %}
+          <a href="{{ url_for('register') }}"> Register </a>
+          <a href="{{ url_for('login') }}"> Login </a>
+        {% endif %}
+    </div>
     {% block content %}{% endblock %}
   </body>
 </html>
